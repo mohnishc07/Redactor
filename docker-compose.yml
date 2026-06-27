@@ -1,9 +1,9 @@
 services:
   backend:
     build:
-      context: ./pdf-redactor
+      context: ./redactor/backend
       dockerfile: Dockerfile
-    container_name: pdf-redactor-backend
+    container_name: redactor-backend
     ports:
       - "8000:8000"
     environment:
@@ -14,9 +14,9 @@ services:
 
   frontend:
     build:
-      context: ./zenaudit-web
+      context: ./redactor/frontend
       dockerfile: Dockerfile
-    container_name: zenaudit-frontend
+    container_name: redactor-frontend
     ports:
       - "3000:3000"
     environment:

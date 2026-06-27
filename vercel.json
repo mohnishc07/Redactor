@@ -1,5 +1,5 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "rootDirectory": "zenaudit-web"
+  "rootDirectory": "redactor/frontend"
 }
