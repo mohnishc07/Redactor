@@ -1,7 +1,7 @@
 services:
   backend:
     build:
-      context: ./redactor/backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: redactor-backend
     ports:
@@ -14,7 +14,7 @@ services:
 
   frontend:
     build:
-      context: ./redactor/frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: redactor-frontend
     ports:
