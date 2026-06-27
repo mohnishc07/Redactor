@@ -209,13 +209,13 @@ function ActionButton({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
       title={title}
       onClick={onClick}
-      className={`flex items-center justify-center w-7 h-7 rounded-lg border text-[11px] transition-colors ${colorStyles[color]}`}
+      className={`flex items-center justify-center w-7 h-7 rounded-lg border text-[11px] transition-colors cursor-pointer ${colorStyles[color]}`}
     >
       {children}
-    </button>
+    </div>
   );
 }
