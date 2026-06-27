@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./pdf-redactor
+      dockerfile: Dockerfile
+    container_name: pdf-redactor-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDACTOR_CORS_ORIGINS=*
+      - REDACTOR_MAX_WORKERS=2
+      - REDACTOR_ENABLE_ML=false
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./zenaudit-web
+      dockerfile: Dockerfile
+    container_name: zenaudit-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REDACTOR_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped

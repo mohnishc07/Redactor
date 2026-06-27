@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Redactor Upload</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; }
+    label { display: block; margin-top: 16px; font-weight: 600; }
+    input, select, button { margin-top: 6px; }
+    button { padding: 10px 20px; cursor: pointer; }
+    #status { margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>PDF Redactor</h1>
+
+  <label>File (PDF, XLSX, XLSM, DOCX)</label>
+  <input type="file" id="file" accept=".pdf,.xlsx,.xlsm,.docx,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+
+  <label>Template</label>
+  <select id="template">
+    <option value="">None</option>
+    <option value="pii">General PII</option>
+    <option value="financial">Financial / Bank</option>
+    <option value="hipaa">HIPAA</option>
+    <option value="gdpr">GDPR</option>
+  </select>
+
+  <label>Redaction label (optional)</label>
+  <input type="text" id="text" value="[REDACTED]" />
+
+  <br />
+  <button id="upload">Redact File</button>
+  <div id="status"></div>
+
+  <script>
+    const API_URL = "http://localhost:8000/redact"; // change to your deployed backend URL
+
+    document.getElementById("upload").addEventListener("click", async () => {
+      const fileInput = document.getElementById("file");
+      const template = document.getElementById("template").value;
+      const text = document.getElementById("text").value;
+      const status = document.getElementById("status");
+
+      if (!fileInput.files[0]) {
+        status.textContent = "Please select a PDF.";
+        return;
+      }
+
+      const options = {
+        detectors: [],
+        ml: false,
+        template: template || undefined,
+        text: text || undefined,
+        report_format: "json",
+        remove_metadata: true,
+      };
+
+      const form = new FormData();
+      form.append("file", fileInput.files[0]);
+      form.append("options", JSON.stringify(options));
+
+      status.textContent = "Uploading...";
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: form });
+        if (!res.ok) throw new Error(await res.text());
+
+        const data = await res.json();
+        status.textContent = `Done. Detections: ${data.report.detections.length}\nSummary: ${JSON.stringify(data.report.summary, null, 2)}`;
+
+        const pdfBytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename;
+        a.textContent = "Download redacted PDF";
+        status.appendChild(document.createElement("br"));
+        status.appendChild(a);
+      } catch (err) {
+        status.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #080C10;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --text-hi: #F0F4F8;
+  --text-mid: rgba(240, 244, 248, 0.55);
+  --text-lo: rgba(240, 244, 248, 0.3);
+  --accent: #5B8AFF;
+  --accent-dim: rgba(91, 138, 255, 0.12);
+  --font-display: var(--font-dm-sans), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+}
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-dm-sans);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border-glass: var(--border-glass);
+  --color-text-hi: var(--text-hi);
+  --color-text-mid: var(--text-mid);
+  --color-text-lo: var(--text-lo);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  
+  --color-glass: var(--border-glass);
+  --color-hi: var(--text-hi);
+  --color-mid: var(--text-mid);
+  --color-lo: var(--text-lo);
+
+  --color-glass-hover: rgba(255, 255, 255, 0.15);
+
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-in-bottom: slide-in-bottom 0.5s ease-out;
+  --animate-aurora: aurora 60s linear infinite;
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-in-bottom {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes aurora {
+    from {
+      background-position: 0% 50%, 0% 50%;
+    }
+    to {
+      background-position: 200% 50%, 200% 50%;
+    }
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-hi);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}

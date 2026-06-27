@@ -1,0 +1,501 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080C10;
+    --surface: rgba(255,255,255,0.04);
+    --border-glass: rgba(255,255,255,0.08);
+    --text-hi: #F0F4F8;
+    --text-mid: rgba(240,244,248,0.55);
+    --text-lo: rgba(240,244,248,0.3);
+    --accent: #5B8AFF;
+    --accent-dim: rgba(91,138,255,0.12);
+    --font-display: 'DM Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text-hi);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(8,12,16,0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--border-glass);
+  }
+
+  .nav-left {
+    flex: 1;
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .nav-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-mid);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--text-hi); }
+
+  .logo-btn {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-hi);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .logo-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { width: 12px; height: 12px; }
+
+  .login-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-hi);
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 6px 14px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
+  }
+  .login-btn:hover { background: rgba(255,255,255,0.1); }
+
+  /* ── HERO ── */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 100px 2rem 80px;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(91,138,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    color: var(--text-hi);
+    max-width: 640px;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: rgba(240,244,248,0.35);
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .cta-primary {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 7px;
+    padding: 10px 22px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: opacity 0.2s;
+  }
+  .cta-primary:hover { opacity: 0.85; }
+
+  .cta-ghost {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-mid);
+    background: none;
+    border: 0.5px solid var(--border-glass);
+    border-radius: 7px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .cta-ghost:hover { color: var(--text-hi); border-color: rgba(255,255,255,0.2); }
+
+  /* ── STATS ── */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 0.5px solid var(--border-glass);
+    border-bottom: 0.5px solid var(--border-glass);
+    margin: 0 2rem;
+  }
+
+  .stat {
+    flex: 1;
+    max-width: 200px;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    border-right: 0.5px solid var(--border-glass);
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    color: var(--text-hi);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-lo);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 80px 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-lo);
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 1.5rem;
+    padding: 2rem 0;
+    border-bottom: 0.5px solid var(--border-glass);
+    align-items: start;
+  }
+  .step:first-child { border-top: 0.5px solid var(--border-glass); }
+
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-lo);
+    letter-spacing: 0.06em;
+    padding-top: 3px;
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--text-hi);
+    margin-bottom: 0.4rem;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ── REDACTION OPTIONS ── */
+  .options-section {
+    padding: 60px 2rem 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border-glass);
+    border: 0.5px solid var(--border-glass);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 2rem;
+  }
+
+  .option-card {
+    background: var(--bg);
+    padding: 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .option-card:hover { background: var(--surface); }
+
+  .option-icon {
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  .option-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-hi);
+    letter-spacing: -0.01em;
+  }
+
+  .option-hint {
+    font-size: 11px;
+    color: var(--text-lo);
+    line-height: 1.4;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 0.5px solid var(--border-glass);
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-lo);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    color: var(--text-lo);
+  }
+</style>
+
+<h2 class="sr-only">Zen Audit — AI-safe redaction tool landing page</h2>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-left">
+    <a href="#" class="nav-link">Home</a>
+    <a href="#" class="nav-link">About</a>
+    <a href="#" class="nav-link">Pricing</a>
+  </div>
+
+  <div class="nav-center">
+    <a href="https://zenaudit.io" class="logo-btn">
+      <div class="logo-mark">
+        <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="6" cy="6" r="3" stroke="white" stroke-width="1.5"/>
+          <line x1="6" y1="1" x2="6" y2="3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="6" y1="9" x2="6" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="1" y1="6" x2="3" y2="6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="6" x2="11" y2="6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Zen Audit
+    </a>
+  </div>
+
+  <div class="nav-right">
+    <a href="https://zenaudit.io/login" class="login-btn">Log in →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="eyebrow">AI-safe document redaction</p>
+  <h1 class="hero-title">Use AI freely.<br><em>Leave nothing behind.</em></h1>
+  <p class="hero-sub">Upload sensitive PDFs or spreadsheets. Zen Audit strips personal data before it ever reaches the model.</p>
+  <div class="cta-row">
+    <button class="cta-primary">Try it free</button>
+    <button class="cta-ghost">See how it works</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">99%</div>
+    <div class="stat-label">Redaction accuracy</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">8+</div>
+    <div class="stat-label">Entity types</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">&lt;2s</div>
+    <div class="stat-label">Per document</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">PDF</div>
+    <div class="stat-label">+ Excel output</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <p class="section-label">How it works</p>
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">01</span>
+      <div>
+        <p class="step-title">Upload your document</p>
+        <p class="step-desc">PDF or Excel. Any size. Dropped straight into the browser — nothing stored.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <div>
+        <p class="step-title">Choose what to redact</p>
+        <p class="step-desc">Names, emails, financials, locations — pick the entities that matter for your use case.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <div>
+        <p class="step-title">Get a clean file back</p>
+        <p class="step-desc">Download the redacted document. Feed it to any AI without exposing private data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REDACTION OPTIONS -->
+<section class="options-section">
+  <p class="section-label">What gets redacted</p>
+  <div class="options-grid">
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-user" aria-hidden="true"></i></div>
+      <p class="option-name">Names</p>
+      <p class="option-hint">People and organisations</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+      <p class="option-name">Emails</p>
+      <p class="option-hint">Any email address format</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
+      <p class="option-name">Locations</p>
+      <p class="option-hint">Addresses and coordinates</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-coin" aria-hidden="true"></i></div>
+      <p class="option-name">Financials</p>
+      <p class="option-hint">Amounts, accounts, IDs</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-phone" aria-hidden="true"></i></div>
+      <p class="option-name">Phone numbers</p>
+      <p class="option-hint">All country formats</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-id-badge" aria-hidden="true"></i></div>
+      <p class="option-name">ID numbers</p>
+      <p class="option-hint">SSN, passport, tax IDs</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-calendar" aria-hidden="true"></i></div>
+      <p class="option-name">Dates</p>
+      <p class="option-hint">Birthdays, filing dates</p>
+    </div>
+    <div class="option-card">
+      <div class="option-icon"><i class="ti ti-lock" aria-hidden="true"></i></div>
+      <p class="option-name">Custom</p>
+      <p class="option-hint">Define your own patterns</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Zen Audit</span>
+  <span class="footer-copy">© 2026</span>
+</footer>

@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  pdf-redactor:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDACTOR_MAX_WORKERS=2
+      - REDACTOR_ENABLE_ML=false
+      - REDACTOR_MAX_FILE_SIZE_MB=50
+    deploy:
+      resources:
+        limits:
+          memory: 1G
