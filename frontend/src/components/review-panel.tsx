@@ -7,6 +7,8 @@ import {
   IconTrash,
   IconHandClick,
 } from "@tabler/icons-react";
+import { Keycap } from "@/components/ui/keycap";
+import { Card } from "@/components/ui/card";
 import type { ReviewDetection, ManualBox } from "@/lib/types";
 
 type ReviewItem = ReviewDetection | ManualBox;
@@ -47,26 +49,26 @@ export default function ReviewPanel({
   const sortedPages = Array.from(grouped.keys()).sort((a, b) => a - b);
 
   return (
-    <div className="glass flex flex-col h-full max-h-full !p-0">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+    <Card className="flex flex-col h-full max-h-full !p-0 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--hairline)]">
         <div className="flex items-center gap-2">
-          <IconHandClick className="w-4 h-4 text-[var(--accent)]" />
-          <span className="font-heading text-[14px] font-semibold tracking-tight">Review</span>
+          <IconHandClick className="w-4 h-4 text-[var(--accent-blue)]" />
+          <span className="font-heading text-[14px] font-medium tracking-[0.2px] text-[var(--ink)]">Review</span>
         </div>
-        <span className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide">
+        <span className="font-ui text-[10px] font-medium uppercase text-[var(--mute)] tracking-[0.4px]">
           {approved} approved · {rejected} rejected · {manualBoxes.length} manual
         </span>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 -mr-1 space-y-4 p-4">
         {sortedPages.length === 0 && (
-          <div className="text-center py-10 text-[var(--text-muted)] font-body text-[13px]">
+          <div className="text-center py-10 text-[var(--mute)] font-body text-[13px]">
             No redactions found.
           </div>
         )}
         {sortedPages.map((page) => (
           <div key={page}>
-            <p className="font-ui text-[10px] font-semibold uppercase tracking-wide text-[var(--text-low)] mb-2">
+            <p className="font-ui text-[10px] font-medium uppercase tracking-[0.4px] text-[var(--mute)] mb-2">
               Page {page}
             </p>
             <div className="space-y-2">
@@ -77,38 +79,38 @@ export default function ReviewPanel({
                   <button
                     key={item.id}
                     onClick={() => onSelect(item.id)}
-                    className={`w-full text-left rounded-xl border p-3 ${
+                    className={`w-full text-left rounded-[var(--radius-md)] border p-3 transition-colors ${
                       isSelected
-                        ? "bg-[var(--accent-soft)]/10 border-[var(--accent)]/30"
-                        : "bg-[var(--surface-strong)] border-[var(--border)]"
+                        ? "bg-[var(--surface-card)] border-[var(--hairline-strong)]"
+                        : "bg-[var(--surface-elevated)] border-[var(--hairline)] hover:border-[var(--hairline-strong)]"
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
                       <div
                         className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
                           manual
-                            ? "bg-[var(--tint-sky)]"
+                            ? "bg-[var(--accent-blue)]"
                             : item.status === "approved"
-                            ? "bg-[var(--tint-sage)]"
-                            : "bg-[var(--text-low)]"
+                            ? "bg-[var(--accent-green)]"
+                            : "bg-[var(--ash)]"
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-heading text-[12px] font-semibold text-[var(--text)] truncate">
+                        <p className="font-heading text-[12px] font-medium text-[var(--ink)] truncate">
                           {manual ? "Manual redaction" : item.text || item.detector}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="font-ui text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)]">
+                          <span className="font-ui text-[10px] font-medium uppercase px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface)] text-[var(--mute)] border border-[var(--hairline)]">
                             {manual ? "manual" : item.detector}
                           </span>
                           {!manual && (
                             <span
-                              className={`font-ui text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${
+                              className={`font-ui text-[10px] font-medium uppercase px-1.5 py-0.5 rounded-[var(--radius-xs)] border ${
                                 item.confidence === "high"
-                                  ? "bg-[var(--tint-sage)]/20 text-[var(--tint-sage)] border-[var(--tint-sage)]/30"
+                                  ? "bg-[var(--accent-green-soft)] text-[var(--accent-green)] border-[var(--accent-green)]/20"
                                   : item.confidence === "medium"
-                                  ? "bg-[var(--tint-peach)]/20 text-[var(--tint-peach)] border-[var(--tint-peach)]/30"
-                                  : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)]"
+                                  ? "bg-[var(--accent-yellow-soft)] text-[var(--accent-yellow)] border-[var(--accent-yellow)]/20"
+                                  : "bg-[var(--surface)] text-[var(--mute)] border-[var(--hairline)]"
                               }`}
                             >
                               {item.confidence}
@@ -126,7 +128,7 @@ export default function ReviewPanel({
                             e.stopPropagation();
                             if (item.status !== "approved") onToggleDetection(item.id);
                           }}
-                          color="sage"
+                          color="green"
                           title="Approve"
                         >
                           <IconCheck className="w-3 h-3" />
@@ -176,7 +178,7 @@ export default function ReviewPanel({
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -190,17 +192,17 @@ function ActionButton({
   children: React.ReactNode;
   onClick: (e: React.MouseEvent) => void;
   active?: boolean;
-  color: "sage" | "slate" | "red";
+  color: "green" | "slate" | "red";
   title: string;
 }) {
   const colorStyles = {
-    sage: active
-      ? "bg-[var(--tint-sage)] text-white border-transparent"
-      : "text-[var(--tint-sage)] bg-[var(--surface-strong)] border-[var(--border)]",
+    green: active
+      ? "bg-[var(--accent-green)] text-[var(--on-dark)] border-transparent"
+      : "text-[var(--accent-green)] bg-[var(--surface)] border-[var(--hairline)]",
     slate: active
-      ? "bg-[var(--text-low)] text-white border-transparent"
-      : "text-[var(--text-muted)] bg-[var(--surface-strong)] border-[var(--border)]",
-    red: "text-[var(--primary)] bg-[var(--surface-strong)] border-[var(--border)]",
+      ? "bg-[var(--ash)] text-[var(--on-dark)] border-transparent"
+      : "text-[var(--mute)] bg-[var(--surface)] border-[var(--hairline)]",
+    red: "text-[var(--accent-red)] bg-[var(--surface)] border-[var(--hairline)]",
   };
 
   return (
@@ -208,7 +210,7 @@ function ActionButton({
       role="button"
       title={title}
       onClick={onClick}
-      className={`flex items-center justify-center w-7 h-7 rounded-lg text-[11px] cursor-pointer ${colorStyles[color]}`}
+      className={`flex items-center justify-center w-7 h-7 rounded-[var(--radius-sm)] text-[11px] cursor-pointer ${colorStyles[color]}`}
     >
       {children}
     </div>

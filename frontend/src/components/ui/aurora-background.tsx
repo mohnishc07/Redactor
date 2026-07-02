@@ -17,8 +17,8 @@ export const AuroraBackground = ({
     <main>
       <div
         className={cn(
-          "transition-bg relative flex min-h-screen flex-col items-center justify-center text-[var(--text)]",
-          className,
+          "transition-bg relative flex min-h-screen flex-col items-center justify-center text-[var(--body)]",
+          className
         )}
         {...props}
       >
@@ -27,29 +27,29 @@ export const AuroraBackground = ({
           style={
             {
               "--aurora":
-                "repeating-linear-gradient(100deg,#80ced7_10%,#9ad1d4_15%,#ccdbdc_20%,#007ea7_25%,#80ced7_30%)",
+                "repeating-linear-gradient(100deg,#1a0a0a_10%,#0f1111_15%,#181818_20%,#2a1010_25%,#1a0a0a_30%)",
               "--dark-gradient":
-                "repeating-linear-gradient(100deg,#003249_0%,#003249_7%,transparent_10%,transparent_12%,#003249_16%)",
+                "repeating-linear-gradient(100deg,#07080a_0%,#07080a_7%,transparent_10%,transparent_12%,#07080a_16%)",
               "--white-gradient":
-                "repeating-linear-gradient(100deg,#ccdbdc_0%,#ccdbdc_7%,transparent_10%,transparent_12%,#ccdbdc_16%)",
+                "repeating-linear-gradient(100deg,#0d0d0d_0%,#0d0d0d_7%,transparent_10%,transparent_12%,#0d0d0d_16%)",
 
-              "--blue-300": "#9ad1d4",
-              "--blue-400": "#80ced7",
-              "--blue-500": "#007ea7",
-              "--indigo-300": "#ccdbdc",
-              "--violet-200": "#80ced7",
-              "--black": "#003249",
-              "--white": "#ccdbdc",
+              "--red-300": "#2a1010",
+              "--red-400": "#1a0a0a",
+              "--red-500": "#0f1111",
+              "--gray-300": "#181818",
+              "--gray-200": "#101111",
+              "--black": "#07080a",
+              "--white": "#0d0d0d",
               "--transparent": "transparent",
             } as React.CSSProperties
           }
         >
           <div
             className={cn(
-              `after:animate-aurora pointer-events-none absolute -inset-[10px] [background-image:var(--white-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-50 blur-[10px] invert filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--blue-500)_10%,var(--indigo-300)_15%,var(--blue-300)_20%,var(--violet-200)_25%,var(--blue-400)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)] after:absolute after:inset-0 after:[background-image:var(--white-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:fixed] after:mix-blend-difference after:content-[""] dark:[background-image:var(--dark-gradient),var(--aurora)] dark:invert-0 after:dark:[background-image:var(--dark-gradient),var(--aurora)]`,
+              `after:animate-aurora pointer-events-none absolute -inset-[10px] [background-image:var(--white-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-40 blur-[10px] invert filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--red-500)_10%,var(--gray-300)_15%,var(--red-300)_20%,var(--gray-200)_25%,var(--red-400)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)] after:absolute after:inset-0 after:[background-image:var(--white-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:fixed] after:mix-blend-difference after:content-[""] dark:[background-image:var(--dark-gradient),var(--aurora)] dark:invert-0 after:dark:[background-image:var(--dark-gradient),var(--aurora)]`,
 
               showRadialGradient &&
-                `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,var(--transparent)_70%)]`,
+                `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,var(--transparent)_70%)]`
             )}
           ></div>
         </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { IconLock } from "@tabler/icons-react";
 
@@ -16,7 +14,7 @@ export function PaywallGate({ children, locked = false, onUpgrade }: PaywallGate
         <button
           type="button"
           onClick={onUpgrade}
-          className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-[var(--surface-strong)] border border-[var(--border)] text-[var(--text-low)]"
+          className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-[var(--surface-elevated)] border border-[var(--hairline)] text-[var(--ash)]"
           title="Upgrade to unlock"
         >
           <IconLock className="w-3 h-3" />

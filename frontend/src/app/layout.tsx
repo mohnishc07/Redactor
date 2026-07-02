@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
+import { Inter, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: "Zen Audit - Document Redaction",
+  title: "ZenAudit - Document Redaction",
   description: "Privacy-grade document redaction for PDF, Excel, and Word files.",
 };
-
-const themeInitScript = `
-  (function () {
-    try {
-      var stored = localStorage.getItem("zenaudit-theme");
-      var theme = stored === "dark" || stored === "light" ? stored : "light";
-      document.documentElement.classList.add(theme);
-      document.documentElement.style.colorScheme = theme;
-    } catch (e) {}
-  })();
-`;
 
 export default function RootLayout({
   children,
@@ -24,12 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
-      <body className="antialiased" suppressHydrationWarning>
-        <ThemeProvider>{children}</ThemeProvider>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${geist.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        {children}
       </body>
     </html>
   );

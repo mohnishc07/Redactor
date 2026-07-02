@@ -9,6 +9,8 @@ import {
   IconCheck,
   IconLoader2,
 } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import PdfViewer from "@/components/pdf-viewer";
 import ReviewPanel from "@/components/review-panel";
 import type {
@@ -136,58 +138,49 @@ export default function PreviewWorkspace({
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-strong p-8 text-center border-[var(--accent-soft)]/30 bg-[var(--accent)]/5"
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[var(--accent)] text-white mb-4">
-            <IconCheck className="w-6 h-6" />
-          </div>
-          <h3 className="font-heading text-[18px] font-semibold text-[var(--text)] mb-1">Redaction complete</h3>
-          <p className="font-body text-[13px] text-[var(--text-muted)] mb-6">
-            {result.report.detections.length} items redacted across {result.report.pages} page
-            {result.report.pages === 1 ? "" : "s"}
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={downloadResult}
-              className="btn-primary"
-            >
-              <IconDownload className="w-4 h-4" />
-              Download PDF
-            </button>
-            <button
-              onClick={onReset}
-              className="btn-secondary"
-            >
-              <IconRefresh className="w-4 h-4" />
-              Start over
-            </button>
-          </div>
+          <Card className="p-8 text-center border-[var(--accent-green)]/20 bg-[var(--accent-green-soft)]">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-[var(--radius-md)] bg-[var(--accent-green)] text-[var(--on-dark)] mb-4">
+              <IconCheck className="w-6 h-6" />
+            </div>
+            <h3 className="font-heading text-[18px] font-medium text-[var(--ink)] mb-1">Redaction complete</h3>
+            <p className="font-body text-[13px] text-[var(--mute)] mb-6">
+              {result.report.detections.length} items redacted across {result.report.pages} page
+              {result.report.pages === 1 ? "" : "s"}
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <Button onClick={downloadResult}>
+                <IconDownload className="w-4 h-4" />
+                Download PDF
+              </Button>
+              <Button variant="tertiary" onClick={onReset}>
+                <IconRefresh className="w-4 h-4" />
+                Start over
+              </Button>
+            </div>
+          </Card>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[calc(100vh-160px)] min-h-[600px] flex flex-col">
+    <div className="w-full h-[calc(100vh-140px)] min-h-[600px] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button
             onClick={onReset}
-            className="p-2 rounded-xl text-[var(--text-low)] bg-[var(--surface-strong)] border border-[var(--border)]"
+            className="p-2 rounded-[var(--radius-md)] text-[var(--ash)] bg-[var(--surface-elevated)] border border-[var(--hairline)] hover:text-[var(--on-dark)]"
           >
             <IconArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <h2 className="font-heading text-[16px] font-semibold text-[var(--text)]">Preview & Review</h2>
-            <p className="font-body text-[12px] text-[var(--text-muted)] truncate max-w-[300px]">{fileName}</p>
+            <h2 className="font-heading text-[16px] font-medium text-[var(--ink)]">Preview & Review</h2>
+            <p className="font-body text-[12px] text-[var(--mute)] truncate max-w-[300px]">{fileName}</p>
           </div>
         </div>
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="btn-primary disabled:opacity-50"
-        >
+        <Button onClick={handleSubmit} disabled={submitting}>
           {submitting ? (
             <>
               <IconLoader2 className="w-4 h-4 animate-spin" />
@@ -199,11 +192,11 @@ export default function PreviewWorkspace({
               Submit
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4 font-body text-[13px] text-[var(--text)]">
+        <div className="mb-4 rounded-[var(--radius-lg)] border border-[var(--accent-red)]/20 bg-[var(--accent-red-soft)] p-4 font-body text-[13px] text-[var(--on-dark)]">
           {error}
         </div>
       )}

@@ -84,7 +84,7 @@ describe("FileUploadDemo", () => {
       fireEvent.click(financialBtn);
     });
 
-    expect(financialBtn).toHaveClass("bg-accent");
+    expect(financialBtn).toHaveClass("bg-[var(--primary)]");
   });
 
   it("toggles individual detectors", async () => {
@@ -97,17 +97,21 @@ describe("FileUploadDemo", () => {
     });
 
     const piiBtn = screen.getByRole("button", { name: "PII" });
-    expect(piiBtn).not.toHaveClass("bg-accent");
+    expect(piiBtn).not.toHaveClass("bg-[var(--primary)]");
   });
 
   it("disables redact when no detectors are selected", async () => {
     const { container } = render(<FileUploadDemo />);
     await uploadFile(container);
 
-    const clearBtn = screen.getByRole("button", { name: "Clear" });
-    await act(async () => {
-      fireEvent.click(clearBtn);
-    });
+    // Deselect all PII detector chips
+    const piiDetectors = ["Phone", "Email", "Names", "Addresses", "SSN", "Passport"];
+    for (const name of piiDetectors) {
+      const chip = screen.getByRole("button", { name });
+      await act(async () => {
+        fireEvent.click(chip);
+      });
+    }
 
     expect(screen.getByRole("button", { name: /Redact Document/i })).toBeDisabled();
   });

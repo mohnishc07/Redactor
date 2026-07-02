@@ -106,11 +106,11 @@ export const FileUpload = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "group relative flex flex-col items-center justify-center gap-4 border border-dashed rounded-[var(--radius-lg)] px-8 py-10 text-center cursor-pointer",
-          "bg-[var(--surface-strong)] border-[var(--border-alt)]",
+          "group relative flex flex-col items-center justify-center gap-4 border border-dashed rounded-xl px-8 py-10 text-center cursor-pointer transition-all duration-300 ease-out",
+          "bg-muted/30 border-border",
           isDragOver
-            ? "border-[var(--accent)] bg-[var(--accent-soft)]/10"
-            : "border-[var(--border-alt)]"
+            ? "border-primary bg-primary/10"
+            : "hover:border-white/30 hover:bg-muted/50"
         )}
       >
         <input
@@ -122,19 +122,19 @@ export const FileUpload = ({
           className="hidden"
         />
 
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--surface)] text-[var(--accent)] border border-[var(--border)]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-card text-white border border-border">
           {files.length > 0 ? <IconFile className="h-7 w-7" /> : <IconUpload className="h-7 w-7" />}
         </div>
 
         <div className="space-y-1">
-          <p className="font-heading text-[15px] font-semibold text-[var(--text)]">
+          <p className="font-clash text-[15px] font-medium text-white">
             {files.length > 0
               ? multiple
                 ? `${files.length} file${files.length === 1 ? "" : "s"} selected`
                 : files[0].name
               : displayLabel}
           </p>
-          <p className="font-body text-[13px] text-[var(--text-muted)]">
+          <p className="font-geist text-[13px] text-gray-400">
             {files.length > 0 && !multiple
               ? `${(files[0].size / (1024 * 1024)).toFixed(2)} MB`
               : displaySublabel}

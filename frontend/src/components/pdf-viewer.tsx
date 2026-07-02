@@ -13,6 +13,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { Card } from "@/components/ui/card";
 import type { ReviewDetection, ManualBox, ViewerMode } from "@/lib/types";
 
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -41,20 +42,20 @@ interface PageSize {
 
 const HIGHLIGHTS = {
   approved: {
-    fill: "rgba(139, 92, 246, 0.22)",
-    border: "rgba(139, 92, 246, 0.80)",
+    fill: "rgba(89, 212, 153, 0.18)",
+    border: "rgba(89, 212, 153, 0.80)",
   },
   rejected: {
-    fill: "rgba(90, 90, 104, 0.18)",
-    border: "rgba(90, 90, 104, 0.60)",
+    fill: "rgba(106, 107, 108, 0.15)",
+    border: "rgba(106, 107, 108, 0.60)",
   },
   manual: {
-    fill: "rgba(56, 189, 248, 0.20)",
-    border: "rgba(56, 189, 248, 0.80)",
+    fill: "rgba(87, 193, 255, 0.18)",
+    border: "rgba(87, 193, 255, 0.80)",
   },
   selected: {
-    fill: "rgba(139, 92, 246, 0.38)",
-    border: "rgba(139, 92, 246, 1)",
+    fill: "rgba(89, 212, 153, 0.32)",
+    border: "rgba(89, 212, 153, 1)",
   },
 };
 
@@ -150,7 +151,7 @@ export default function PdfViewer({
     if (!drawing) return;
     const { page, startX, startY, endX, endY } = drawing;
     const x0 = Math.min(startX, endX) / scale;
-    const y0 = Math.min(startY, endY) / scale;
+    const y0 = Math.min(startY, startY) / scale;
     const x1 = Math.max(startX, endX) / scale;
     const y1 = Math.max(startY, endY) / scale;
     if (x1 - x0 > 2 && y1 - y0 > 2) {
@@ -172,31 +173,39 @@ export default function PdfViewer({
     return size ? size.originalWidth * scale : 0;
   };
 
+  const toolbarButton = "p-2 rounded-[var(--radius-md)] text-[var(--ash)] bg-[var(--surface-elevated)] border border-[var(--hairline)] hover:text-[var(--on-dark)] disabled:opacity-30";
+  const modeButton = (active: boolean) =>
+    `flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] font-ui text-[11px] font-medium tracking-[0.2px] ${
+      active
+        ? "bg-[var(--primary)] text-[var(--on-primary)]"
+        : "text-[var(--mute)] bg-[var(--surface-elevated)] border border-[var(--hairline)]"
+    }`;
+
   return (
-    <div className="flex flex-col h-full glass overflow-hidden !p-0">
+    <Card className="flex flex-col h-full overflow-hidden !p-0">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)] bg-[var(--surface-strong)]">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--hairline)] bg-[var(--surface-elevated)]">
         <div className="flex items-center gap-1">
           <button
             onClick={() => onScaleChange(Math.max(0.5, scale - 0.25))}
-            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
+            className={toolbarButton}
             title="Zoom out"
           >
             <IconZoomOut className="w-4 h-4" />
           </button>
-          <span className="font-ui text-[12px] font-semibold text-[var(--text-muted)] min-w-[48px] text-center">
+          <span className="font-ui text-[12px] font-medium text-[var(--mute)] min-w-[48px] text-center">
             {Math.round(scale * 100)}%
           </span>
           <button
             onClick={() => onScaleChange(scale + 0.25)}
-            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
+            className={toolbarButton}
             title="Zoom in"
           >
             <IconZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={() => onScaleChange(1.25)}
-            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
+            className={toolbarButton}
             title="Fit"
           >
             <IconMaximize className="w-4 h-4" />
@@ -206,22 +215,14 @@ export default function PdfViewer({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onModeChange("pan")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-ui text-[11px] font-semibold uppercase tracking-wide ${
-              mode === "pan"
-                ? "bg-[var(--accent)] text-white"
-                : "text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)]"
-            }`}
+            className={modeButton(mode === "pan")}
           >
             <IconHandMove className="w-3.5 h-3.5" />
             Pan
           </button>
           <button
             onClick={() => onModeChange("draw")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-ui text-[11px] font-semibold uppercase tracking-wide ${
-              mode === "draw"
-                ? "bg-[var(--accent)] text-white"
-                : "text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)]"
-            }`}
+            className={modeButton(mode === "draw")}
           >
             <IconPencil className="w-3.5 h-3.5" />
             Draw
@@ -232,17 +233,17 @@ export default function PdfViewer({
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
-            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)] disabled:opacity-30"
+            className={toolbarButton}
           >
             <IconChevronLeft className="w-4 h-4" />
           </button>
-          <span className="font-ui text-[12px] font-semibold text-[var(--text-muted)] min-w-[64px] text-center">
+          <span className="font-ui text-[12px] font-medium text-[var(--mute)] min-w-[64px] text-center">
             {currentPage} / {numPages || "—"}
           </span>
           <button
             onClick={() => onPageChange(Math.min(numPages, currentPage + 1))}
             disabled={currentPage >= numPages}
-            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)] disabled:opacity-30"
+            className={toolbarButton}
           >
             <IconChevronRight className="w-4 h-4" />
           </button>
@@ -252,7 +253,7 @@ export default function PdfViewer({
       {/* Viewport */}
       <div
         ref={containerRef}
-        className={`flex-1 overflow-auto bg-[var(--bg)] p-6 ${
+        className={`flex-1 overflow-auto bg-[var(--canvas)] p-6 ${
           mode === "draw" ? "cursor-crosshair select-none" : "cursor-grab active:cursor-grabbing"
         }`}
       >
@@ -266,7 +267,7 @@ export default function PdfViewer({
                   ref={(el) => {
                     pageRefs.current[pageIndex] = el;
                   }}
-                  className="relative mx-auto mb-8 rounded-[var(--radius-sm)] border border-[var(--border-alt)] overflow-hidden shadow-[var(--shadow-sm)]"
+                  className="relative mx-auto mb-8 rounded-[var(--radius-md)] border border-[var(--hairline)] overflow-hidden"
                   style={{ width: renderedWidth(pageIndex) || "fit-content" }}
                 >
                   <Page
@@ -309,10 +310,10 @@ export default function PdfViewer({
                             return (
                               <div
                                 key={`${item.id}-${rIdx}`}
-                                className={`absolute rounded-sm ${
+                                className={`absolute rounded-[var(--radius-xs)] ${
                                   mode === "draw" ? "pointer-events-none" : "pointer-events-auto"
                                 } ${dashed ? "border-dashed" : "border-solid"} ${
-                                  isSelected ? "ring-2 ring-[var(--accent)]" : ""
+                                  isSelected ? "ring-2 ring-[var(--accent-green)]" : ""
                                 }`}
                                 style={{
                                   left,
@@ -341,7 +342,7 @@ export default function PdfViewer({
                     })}
                     {drawing && drawing.page === pageIndex && (
                       <div
-                        className="absolute pointer-events-none border border-[var(--accent)] bg-[var(--accent)]/20 rounded-sm"
+                        className="absolute pointer-events-none border border-[var(--accent-blue)] bg-[var(--accent-blue)]/20 rounded-[var(--radius-xs)]"
                         style={{
                           left: Math.min(drawing.startX, drawing.endX),
                           top: Math.min(drawing.startY, drawing.endY),
@@ -356,15 +357,15 @@ export default function PdfViewer({
             })}
         </Document>
       </div>
-    </div>
+    </Card>
   );
 }
 
 function PdfLoading() {
   return (
-    <div className="flex-1 flex items-center justify-center p-12 text-[var(--text-muted)]">
+    <div className="flex-1 flex items-center justify-center p-12 text-[var(--mute)]">
       <div className="flex flex-col items-center gap-3">
-        <span className="w-8 h-8 border-2 border-[var(--border-alt)] border-t-[var(--accent)] rounded-full animate-spin" />
+        <span className="w-8 h-8 border-2 border-[var(--hairline)] border-t-[var(--accent-blue)] rounded-full animate-spin" />
         <span className="font-body text-[13px]">Loading PDF...</span>
       </div>
     </div>
@@ -373,7 +374,7 @@ function PdfLoading() {
 
 function PageLoading() {
   return (
-    <div className="flex items-center justify-center p-12 text-[var(--text-muted)]">
+    <div className="flex items-center justify-center p-12 text-[var(--mute)]">
       <span className="font-body text-[13px]">Rendering page...</span>
     </div>
   );
