@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import {
   IconShieldCheck,
-  IconBolt,
   IconCloudOff,
   IconFingerprint,
   IconClock,
@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react";
 
 export default function Home() {
+  const router = useRouter();
   const scrollToFeatures = () => {
     const el = document.getElementById("features");
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -49,10 +50,10 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/redact" className="btn-primary !px-7 !py-3.5 !text-[13px]">
-                <IconBolt className="inline w-4 h-4 mr-1 -mt-0.5" />
-                Redact a file now
-              </Link>
+              <LiquidMetalButton
+                label="Redact a file now"
+                onClick={() => router.push("/redact")}
+              />
               <button
                 onClick={scrollToFeatures}
                 className="btn-secondary !px-7 !py-3.5 !text-[13px]"
@@ -179,10 +180,10 @@ export default function Home() {
             <p className="font-body text-[16px] leading-[1.6] mb-8 max-w-md mx-auto text-[var(--text-muted)]">
               Start redacting documents in seconds. No signup required for the demo.
             </p>
-            <Link href="/redact" className="btn-primary !px-8 !py-4 !text-[13px]">
-              <IconBolt className="inline w-4 h-4 mr-1 -mt-0.5" />
-              Open the redactor
-            </Link>
+            <LiquidMetalButton
+              label="Open the redactor"
+              onClick={() => router.push("/redact")}
+            />
           </div>
         </section>
 
