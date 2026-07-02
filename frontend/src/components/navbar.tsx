@@ -2,29 +2,30 @@
 
 import React from "react";
 import Link from "next/link";
+import ThemeToggle from "./theme-toggle";
 
 export default function Navbar() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 h-[68px] bg-[#080C10]/40 backdrop-blur-2xl border-b border-white/[0.06]">
-      <Link href="/" className="font-display text-[17px] font-medium text-white tracking-[-0.02em] flex items-center gap-2.5 select-none">
-        <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5">
-            <circle cx="6" cy="6" r="3" stroke="white" strokeWidth="1.5"/>
-            <line x1="6" y1="1" x2="6" y2="3" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="6" y1="9" x2="6" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="1" y1="6" x2="3" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="9" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </div>
+    <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-4 h-14 w-[calc(100%-2rem)] max-w-[1160px] rounded-full border border-[var(--border)] bg-[var(--surface-strong)] text-[var(--text)] backdrop-blur-xl shadow-[var(--shadow-sm)]">
+      <Link
+        href="/"
+        className="font-display text-[18px] font-medium tracking-tight flex items-center gap-2 select-none"
+      >
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--accent)] text-white font-ui text-[11px] font-bold">
+          ZA
+        </span>
         Zen Audit
       </Link>
 
-      <Link
-        href="/redact"
-        className="text-[13px] font-medium text-black bg-white rounded-full px-5 py-2 tracking-[-0.01em] transition-all duration-200 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] shadow-[0_2px_12px_rgba(255,255,255,0.12)]"
-      >
-        Redact a file
-      </Link>
+      <div className="flex items-center gap-3">
+        <ThemeToggle />
+        <Link
+          href="/redact"
+          className="btn-primary !py-2 !px-4"
+        >
+          Redact a file
+        </Link>
+      </div>
     </nav>
   );
 }

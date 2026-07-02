@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { usePaywall } from "@/hooks/use-paywall";
-import { motion } from "motion/react";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProgressRedactButton } from "@/components/ui/progress-redact-button";
 import {
@@ -41,7 +39,6 @@ import {
   IconX,
   IconCloudLock,
   IconPackages,
-  IconLock,
 } from "@tabler/icons-react";
 
 const TEMPLATE_MAPPING: Record<string, string[]> = {
@@ -143,9 +140,6 @@ interface FileUploadDemoProps {
   previewLoading?: boolean;
 }
 
-const cardBase =
-  "rounded-[28px] border border-white/[0.08] bg-[#080C10]/50 backdrop-blur-2xl p-6 shadow-xl flex flex-col";
-
 export default function FileUploadDemo({ onPreview, previewLoading = false }: FileUploadDemoProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [bulkMode, setBulkMode] = useState(false);
@@ -153,7 +147,6 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
     Array<{ filename: string; pdf_base64: string; fileName: string }> | null
   >(null);
   const [bulkLoading, setBulkLoading] = useState(false);
-  const paywall = usePaywall();
 
   const [template, setTemplate] = useState<string | null>("pii");
   const [activeDetectors, setActiveDetectors] = useState<string[]>(TEMPLATE_MAPPING.pii);
@@ -184,10 +177,7 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
   };
 
   const handleRemoveBulkFile = (index: number) => {
-    setFiles((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      return next;
-    });
+    setFiles((prev) => prev.filter((_, i) => i !== index));
     setResult(null);
     setBulkResults(null);
   };
@@ -243,13 +233,6 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
     if (files.length === 0 || activeDetectors.length === 0) {
       throw new Error("No file or detectors selected");
     }
-    if (!paywall.canUpload(1)) {
-      const message = `Paywall active: max ${paywall.maxUploadsPerMinute} PDF${
-        paywall.maxUploadsPerMinute === 1 ? "" : "s"
-      } per minute. Please wait.`;
-      setErrorMessage(message);
-      throw new Error(message);
-    }
     setErrorMessage("");
     setResult(null);
 
@@ -267,22 +250,12 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
       throw new Error(message);
     }
 
-    paywall.recordUpload(1);
     setResult(data);
   };
 
   const handleBulkRedact = async () => {
     if (files.length === 0 || activeDetectors.length === 0) {
       throw new Error("No files or detectors selected");
-    }
-    if (!paywall.canUpload(files.length)) {
-      const message = `Paywall active: you selected ${files.length} file${
-        files.length === 1 ? "" : "s"
-      }, but only ${paywall.remainingUploads} upload${
-        paywall.remainingUploads === 1 ? "" : "s"
-      } remaining this minute.`;
-      setErrorMessage(message);
-      throw new Error(message);
     }
     setErrorMessage("");
     setBulkResults(null);
@@ -303,7 +276,6 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
         }
         results.push({ filename: data.filename, pdf_base64: data.pdf_base64, fileName: file.name });
       }
-      paywall.recordUpload(files.length);
       setBulkResults(results);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Bulk redaction failed";
@@ -382,210 +354,164 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
     return <IconFileText className="w-5 h-5" />;
   };
 
+  const chipButton = (selected: boolean) =>
+    selected
+      ? "bg-[var(--accent)] text-white border-transparent"
+      : "bg-[var(--surface-strong)] text-[var(--text)] border-[var(--border)]";
+
   return (
-    <div className="w-full max-w-[1280px] mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 h-full">
-        {/* TOP-LEFT: UPLOAD */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className={`${cardBase} relative`}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="p-2.5 rounded-xl bg-accent/15 text-accent">
-              <IconCloudLock className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-[16px] font-medium text-white">Upload</h3>
-              <p className="text-[12px] text-white/40">Secure, client-side validation</p>
-            </div>
+    <div className="w-full max-w-[1280px] mx-auto space-y-5">
+      {/* UPLOAD — front and centre */}
+      <div className="glass p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <IconCloudLock className="w-4 h-4 text-[var(--accent)]" />
+            <span className="font-heading text-[14px] font-semibold tracking-tight">Upload</span>
           </div>
+          <button
+            onClick={() => handleToggleBulkMode(!bulkMode)}
+            className={`flex items-center gap-1.5 font-ui text-[11px] font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full border ${
+              bulkMode
+                ? "bg-[var(--accent)] text-white border-transparent"
+                : "bg-[var(--surface-strong)] text-[var(--text)] border-[var(--border)]"
+            }`}
+          >
+            <IconPackages className="w-3.5 h-3.5" />
+            {bulkMode ? "Bulk (max 5)" : "Single file"}
+          </button>
+        </div>
 
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
-                Mode
-              </span>
-              <button
-                onClick={() => handleToggleBulkMode(!bulkMode)}
-                className={`flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1.5 rounded-lg border transition-all ${
-                  bulkMode
-                    ? "bg-accent/15 text-accent border-accent/30"
-                    : "bg-white/[0.04] text-white/60 border-white/[0.08] hover:bg-white/[0.08]"
-                }`}
-              >
-                <IconPackages className="w-3.5 h-3.5" />
-                {bulkMode ? "Bulk (max 5)" : "Single file"}
-              </button>
-            </div>
-
-            {files.length === 0 ? (
-              <>
-                <FileUpload
-                  onChange={handleFileUpload}
-                  multiple={bulkMode}
-                  maxFiles={5}
-                  accept={bulkMode ? ".pdf" : ".pdf,.xls,.xlsx,.xlsm,.docx"}
-                  allowedExtensions={bulkMode ? [".pdf"] : undefined}
-                  label={bulkMode ? "Drop up to 5 PDFs, or click to browse" : undefined}
-                  sublabel={bulkMode ? "PDF only — up to 5 files, 50 MB each" : undefined}
-                />
-                {!bulkMode && (
-                  <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-                    {["PDF", "Excel", "Word"].map((fmt) => (
-                      <span
-                        key={fmt}
-                        className="text-[10px] font-medium uppercase tracking-wider text-white/30 px-2 py-1 rounded-md border border-white/[0.08] bg-white/[0.03]"
-                      >
-                        {fmt}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="flex-1 flex flex-col justify-center">
-                {bulkMode ? (
-                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
-                    {files.map((file, idx) => (
-                      <div
-                        key={`${file.name}-${idx}`}
-                        className="flex items-center gap-3 p-3 rounded-2xl border border-white/[0.08] bg-white/[0.04]"
-                      >
-                        <div className="p-2 rounded-xl bg-accent/15 text-accent">
-                          <IconFileText className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-white truncate">{file.name}</p>
-                          <p className="text-[11px] text-white/40">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveBulkFile(idx)}
-                          className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors"
-                        >
-                          <IconX className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 rounded-2xl border border-white/[0.08] bg-white/[0.04]">
-                    <div className="p-3 rounded-xl bg-accent/15 text-accent">{fileIcon(files[0].name)}</div>
+        {files.length === 0 ? (
+          <>
+            <FileUpload
+              onChange={handleFileUpload}
+              multiple={bulkMode}
+              maxFiles={5}
+              accept={bulkMode ? ".pdf" : ".pdf,.xls,.xlsx,.xlsm,.docx"}
+              allowedExtensions={bulkMode ? [".pdf"] : undefined}
+              label={bulkMode ? "Drop up to 5 PDFs, or click to browse" : undefined}
+              sublabel={bulkMode ? "PDF only — up to 5 files, 50 MB each" : undefined}
+            />
+            {!bulkMode && (
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+                {["PDF", "Excel", "Word"].map((fmt) => (
+                  <span
+                    key={fmt}
+                    className="font-ui text-[10px] font-semibold uppercase text-[var(--text-muted)] px-2.5 py-1 rounded-full border border-[var(--border)] bg-[var(--surface-strong)]"
+                  >
+                    {fmt}
+                  </span>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col justify-center">
+            {bulkMode ? (
+              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+                {files.map((file, idx) => (
+                  <div
+                    key={`${file.name}-${idx}`}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-strong)] border border-[var(--border)]"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center">
+                      <IconFileText className="w-4 h-4" />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-medium text-white truncate">{files[0].name}</p>
-                      <p className="text-[12px] text-white/40">
-                        {(files[0].size / (1024 * 1024)).toFixed(2)} MB
-                      </p>
+                      <p className="font-heading text-[13px] font-semibold text-[var(--text)] truncate">{file.name}</p>
+                      <p className="font-body text-[11px] text-[var(--text-muted)]">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                     </div>
                     <button
-                      onClick={handleRemoveFile}
-                      className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors"
+                      onClick={() => handleRemoveBulkFile(idx)}
+                      className="p-1.5 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
                     >
-                      <IconX className="w-4 h-4" />
+                      <IconX className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                )}
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--surface-strong)] border border-[var(--border)]">
+                <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center">{fileIcon(files[0].name)}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-heading text-[14px] font-semibold text-[var(--text)] truncate">{files[0].name}</p>
+                  <p className="font-body text-[12px] text-[var(--text-muted)]">
+                    {(files[0].size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={handleRemoveFile}
+                  className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
+                >
+                  <IconX className="w-4 h-4" />
+                </button>
               </div>
             )}
           </div>
-        </motion.div>
+        )}
+      </div>
 
-        {/* TOP-RIGHT: SCOPE */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className={`${cardBase} relative`}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="p-2.5 rounded-xl bg-accent/15 text-accent">
-              <IconShield className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-[16px] font-medium text-white">Scope</h3>
-              <p className="text-[12px] text-white/40">Presets + custom redactions</p>
-            </div>
+      {/* OPTIONS — organized into columns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* SCOPE */}
+        <div className="glass p-5 flex flex-col">
+          <div className="flex items-center gap-2 mb-5">
+            <IconShield className="w-4 h-4 text-[var(--accent)]" />
+            <span className="font-heading text-[14px] font-semibold tracking-tight">Scope</span>
           </div>
-
           <div className="space-y-5 flex-1">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40 mb-3">
+              <p className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide mb-3">
                 Compliance Presets
               </p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {Object.keys(TEMPLATE_MAPPING).map((key) => {
                   const selected = template === key;
                   return (
                     <button
                       key={key}
                       onClick={() => handleTemplateSelect(key)}
-                      className={`text-[11px] font-semibold rounded-xl px-2 py-2.5 transition-all duration-200 border ${
-                        selected
-                          ? "bg-accent text-white border-accent"
-                          : "bg-white/[0.04] text-white/70 border-white/[0.08] hover:bg-white/[0.08]"
-                      }`}
+                      className={`font-ui text-[11px] font-semibold uppercase tracking-wide px-2 py-2.5 rounded-xl border ${chipButton(selected)}`}
                     >
-                      {key.toUpperCase()}
+                      {key}
                     </button>
                   );
                 })}
               </div>
             </div>
-
             <div className="flex-1 flex flex-col">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40 mb-3">
+              <p className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide mb-3">
                 Custom Redactions
               </p>
               <textarea
                 value={customMasks}
                 onChange={(e) => setCustomMasks(e.target.value)}
                 placeholder="Type names, sentences, or strings — one per line"
-                className="flex-1 min-h-[100px] w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-accent/40 resize-none"
+                className="flex-1 min-h-[100px] w-full rounded-xl border border-[var(--border-alt)] bg-[var(--surface-strong)] p-4 font-body text-[14px] text-[var(--text)] placeholder:text-[var(--text-low)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2 focus:ring-offset-[var(--bg)] resize-none"
               />
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* BOTTOM-LEFT: DETECTORS */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className={`${cardBase} relative`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-accent/15 text-accent">
-                <IconFingerprint className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-[16px] font-medium text-white">Detectors</h3>
-                <p className="text-[12px] text-white/40">{activeDetectors.length} active</p>
-              </div>
+        {/* DETECTORS */}
+        <div className="glass p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <IconFingerprint className="w-4 h-4 text-[var(--accent)]" />
+              <span className="font-heading text-[14px] font-semibold tracking-tight">Detectors</span>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setActiveDetectors(ALL_DETECTOR_IDS); setTemplate(null); }}
-                className="text-[10px] font-medium text-white/50 hover:text-white transition-colors"
-              >
-                All
-              </button>
-              <button
-                onClick={() => { setActiveDetectors([]); setTemplate(null); }}
-                className="text-[10px] font-medium text-white/50 hover:text-white transition-colors"
-              >
-                Clear
-              </button>
-            </div>
+            <span className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide">
+              {activeDetectors.length} active
+            </span>
           </div>
-
-          <div className="space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="space-y-4 overflow-y-auto pr-1 custom-scrollbar flex-1">
             {DETECTOR_CATEGORIES.map((cat) => (
               <div key={cat.id}>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/30 mb-2">
-                  {cat.name}
-                </p>
+                <div className="mb-2">
+                  <p className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide">
+                    {cat.name}
+                  </p>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {cat.detectors.map((det) => {
                     const active = activeDetectors.includes(det.id);
@@ -594,10 +520,10 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
                       <button
                         key={det.id}
                         onClick={() => handleDetectorToggle(det.id)}
-                        className={`group flex items-center gap-1.5 text-[11px] font-medium rounded-full px-2.5 py-1.5 border transition-all duration-200 ${
+                        className={`flex items-center gap-1.5 font-ui text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1.5 rounded-full border ${
                           active
-                            ? "bg-accent/15 text-accent border-accent/40"
-                            : "bg-white/[0.04] text-white/55 border-white/[0.08] hover:bg-white/[0.08]"
+                            ? "bg-[var(--accent)] text-white border-transparent"
+                            : "bg-[var(--surface-strong)] text-[var(--text-muted)] border-[var(--border)]"
                         }`}
                       >
                         <Icon className="w-3 h-3" />
@@ -610,25 +536,14 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* BOTTOM-RIGHT: REFINE & RUN */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className={`${cardBase} relative`}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="p-2.5 rounded-xl bg-accent/15 text-accent">
-              <IconBolt className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-[16px] font-medium text-white">Refine & Run</h3>
-              <p className="text-[12px] text-white/40">Advanced options + redact</p>
-            </div>
+        {/* REFINE & RUN */}
+        <div className="glass p-5 flex flex-col">
+          <div className="flex items-center gap-2 mb-5">
+            <IconBolt className="w-4 h-4 text-[var(--accent)]" />
+            <span className="font-heading text-[14px] font-semibold tracking-tight">Refine & Run</span>
           </div>
-
           <div className="space-y-2 flex-1">
             {[
               { id: "removeMetadata", label: "Remove metadata", icon: IconFileDescription, state: removeMetadata, setter: setRemoveMetadata },
@@ -641,92 +556,55 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
               return (
                 <label
                   key={opt.id}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${
-                    opt.state ? "bg-white/[0.06] border-white/[0.14]" : "bg-transparent border-white/[0.06] hover:bg-white/[0.03]"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer ${
+                    opt.state ? "bg-[var(--surface-strong)] border-[var(--border)]" : "bg-transparent border-[var(--border-alt)]"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${opt.state ? "text-accent" : "text-white/30"}`} />
-                  <span className={`text-[12px] font-medium ${opt.state ? "text-white" : "text-white/60"}`}>
+                  <Icon className={`w-4 h-4 ${opt.state ? "text-[var(--accent)]" : "text-[var(--text-low)]"}`} />
+                  <span className={`font-body text-[13px] ${opt.state ? "text-[var(--text)]" : "text-[var(--text-muted)]"}`}>
                     {opt.label}
                   </span>
                   <input
                     type="checkbox"
                     checked={opt.state}
                     onChange={(e) => opt.setter(e.target.checked)}
-                    className="ml-auto w-4 h-4 rounded border-white/20 bg-white/[0.06] text-accent focus:ring-0 focus:ring-offset-0"
+                    className="ml-auto w-4 h-4 rounded border-[var(--border-alt)] bg-[var(--surface-strong)] text-[var(--accent)] focus:ring-[var(--accent)] focus:ring-offset-0"
                   />
                 </label>
               );
             })}
-
-            <label
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${
-                paywall.enabled
-                  ? "bg-white/[0.06] border-white/[0.14]"
-                  : "bg-transparent border-white/[0.06] hover:bg-white/[0.03]"
-              }`}
-            >
-              <IconLock className={`w-4 h-4 ${paywall.enabled ? "text-accent" : "text-white/30"}`} />
-              <span className={`text-[12px] font-medium ${paywall.enabled ? "text-white" : "text-white/60"}`}>
-                Enable paywall
-              </span>
-              <input
-                type="checkbox"
-                checked={paywall.enabled}
-                onChange={(e) => paywall.setEnabled(e.target.checked)}
-                className="ml-auto w-4 h-4 rounded border-white/20 bg-white/[0.06] text-accent focus:ring-0 focus:ring-offset-0"
-              />
-            </label>
-            {paywall.enabled && (
-              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03]">
-                <span className="text-[12px] text-white/60">Max uploads / min</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={20}
-                  value={paywall.maxUploadsPerMinute}
-                  onChange={(e) => paywall.setMaxUploadsPerMinute(parseInt(e.target.value, 10) || 0)}
-                  className="ml-auto w-16 bg-white/[0.06] border border-white/[0.12] rounded-lg px-2 py-1 text-[12px] text-white text-center focus:outline-none focus:border-accent/40"
-                />
-              </div>
-            )}
-            {paywall.enabled && (
-              <p className="text-[11px] text-white/40 px-1">
-                {paywall.remainingUploads} upload{paywall.remainingUploads === 1 ? "" : "s"} remaining this minute
-              </p>
-            )}
           </div>
 
-          <div className="mt-5 space-y-3">
+          <div className="pt-4 space-y-3">
             {errorMessage && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.08] p-4 flex items-start gap-3">
-                <IconAlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                <p className="text-[12px] text-white/70 leading-relaxed">{errorMessage}</p>
+              <div className="rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4 flex items-start gap-3 text-[var(--text)]">
+                <IconAlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
+                <p className="font-body text-[12px] leading-relaxed">{errorMessage}</p>
               </div>
             )}
 
             {result && !bulkMode && (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.08] p-4">
+              <div className="rounded-xl border border-[var(--accent-soft)]/30 bg-[var(--accent)]/5 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <IconCheck className="w-4 h-4 text-emerald-400" />
-                  <p className="text-[13px] font-medium text-white">
+                  <IconCheck className="w-4 h-4 text-[var(--accent)]" />
+                  <p className="font-heading text-[13px] font-semibold text-[var(--text)]">
                     {result.report?.detections?.length ?? 0} items redacted
                   </p>
                 </div>
-                <p className="text-[11px] text-white/50 mb-3">
+                <p className="font-body text-[11px] text-[var(--text-muted)] mb-3">
                   across {result.report?.pages ?? "—"} page{result.report?.pages === 1 ? "" : "s"}
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={downloadRedactedFile}
-                    className="flex-1 flex items-center justify-center gap-2 text-[12px] font-medium text-black bg-white rounded-xl py-2.5 hover:bg-white/90 transition-colors"
+                    className="flex-1 btn-primary !py-2.5"
                   >
                     <IconDownload className="w-3.5 h-3.5" />
                     Download
                   </button>
                   <button
                     onClick={handleReset}
-                    className="flex-1 flex items-center justify-center gap-2 text-[12px] font-medium text-white/70 bg-white/[0.06] border border-white/[0.08] rounded-xl py-2.5 hover:bg-white/[0.10] transition-colors"
+                    className="flex-1 btn-secondary !py-2.5"
                   >
                     <IconRefresh className="w-3.5 h-3.5" />
                     Reset
@@ -736,10 +614,10 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
             )}
 
             {bulkResults && bulkMode && (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.08] p-4 max-h-[260px] overflow-y-auto custom-scrollbar">
+              <div className="rounded-xl border border-[var(--accent-soft)]/30 bg-[var(--accent)]/5 p-4 max-h-[260px] overflow-y-auto custom-scrollbar">
                 <div className="flex items-center gap-2 mb-3">
-                  <IconCheck className="w-4 h-4 text-emerald-400" />
-                  <p className="text-[13px] font-medium text-white">
+                  <IconCheck className="w-4 h-4 text-[var(--accent)]" />
+                  <p className="font-heading text-[13px] font-semibold text-[var(--text)]">
                     {bulkResults.length} file{bulkResults.length === 1 ? "" : "s"} redacted
                   </p>
                 </div>
@@ -747,12 +625,12 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
                   {bulkResults.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08]"
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-strong)] border border-[var(--border)]"
                     >
-                      <span className="text-[12px] text-white/80 truncate max-w-[140px]">{item.fileName}</span>
+                      <span className="font-body text-[12px] text-[var(--text)] truncate max-w-[140px]">{item.fileName}</span>
                       <button
                         onClick={() => downloadBulkFile(item)}
-                        className="flex items-center gap-1 text-[11px] font-medium text-black bg-white rounded-lg px-2 py-1 hover:bg-white/90 transition-colors"
+                        className="flex items-center gap-1 font-ui text-[11px] font-semibold uppercase tracking-wide bg-[var(--accent)] text-white px-2.5 py-1.5 rounded-lg"
                       >
                         <IconDownload className="w-3 h-3" />
                         Download
@@ -762,7 +640,7 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
                 </div>
                 <button
                   onClick={handleReset}
-                  className="w-full flex items-center justify-center gap-2 text-[12px] font-medium text-white/70 bg-white/[0.06] border border-white/[0.08] rounded-xl py-2.5 hover:bg-white/[0.10] transition-colors"
+                  className="w-full btn-secondary !py-2.5"
                 >
                   <IconRefresh className="w-3.5 h-3.5" />
                   Reset
@@ -776,23 +654,14 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
                   type="button"
                   onClick={async () => {
                     if (files.length === 0 || activeDetectors.length === 0) return;
-                    if (!paywall.canUpload(1)) {
-                      setErrorMessage(
-                        `Paywall active: max ${paywall.maxUploadsPerMinute} PDF${
-                          paywall.maxUploadsPerMinute === 1 ? "" : "s"
-                        } per minute.`
-                      );
-                      return;
-                    }
-                    paywall.recordUpload(1);
                     await onPreview(files[0], buildOptions());
                   }}
                   disabled={files.length === 0 || activeDetectors.length === 0 || previewLoading}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-white/[0.12] bg-white/[0.06] py-3.5 px-6 text-[14px] font-semibold text-white transition-all duration-200 hover:bg-white/[0.10] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full btn-secondary !py-3.5 !text-[13px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {previewLoading ? (
                     <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-[var(--text-low)]/30 border-t-[var(--text)] rounded-full animate-spin" />
                       Analyzing...
                     </>
                   ) : (
@@ -808,11 +677,11 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
                   type="button"
                   onClick={handleBulkRedact}
                   disabled={files.length === 0 || activeDetectors.length === 0 || bulkLoading}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-white text-black py-4 px-6 text-[14px] font-semibold transition-all duration-200 hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_32px_rgba(255,255,255,0.12)]"
+                  className="w-full btn-primary !py-4 !text-[14px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {bulkLoading ? (
                     <>
-                      <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Redacting {files.length} files...
                     </>
                   ) : (
@@ -830,7 +699,7 @@ export default function FileUploadDemo({ onPreview, previewLoading = false }: Fi
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

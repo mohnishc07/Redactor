@@ -136,27 +136,27 @@ export default function PreviewWorkspace({
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/[0.08] backdrop-blur-2xl p-6 text-center"
+          className="glass-strong p-8 text-center border-[var(--accent-soft)]/30 bg-[var(--accent)]/5"
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[var(--accent)] text-white mb-4">
             <IconCheck className="w-6 h-6" />
           </div>
-          <h3 className="text-[18px] font-medium text-white mb-1">Redaction complete</h3>
-          <p className="text-[13px] text-white/50 mb-6">
+          <h3 className="font-heading text-[18px] font-semibold text-[var(--text)] mb-1">Redaction complete</h3>
+          <p className="font-body text-[13px] text-[var(--text-muted)] mb-6">
             {result.report.detections.length} items redacted across {result.report.pages} page
             {result.report.pages === 1 ? "" : "s"}
           </p>
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={downloadResult}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-[13px] font-semibold hover:bg-white/90 transition-colors"
+              className="btn-primary"
             >
               <IconDownload className="w-4 h-4" />
               Download PDF
             </button>
             <button
               onClick={onReset}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.12] bg-white/[0.06] text-white text-[13px] font-medium hover:bg-white/[0.10] transition-colors"
+              className="btn-secondary"
             >
               <IconRefresh className="w-4 h-4" />
               Start over
@@ -174,19 +174,19 @@ export default function PreviewWorkspace({
         <div className="flex items-center gap-3">
           <button
             onClick={onReset}
-            className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-2 rounded-xl text-[var(--text-low)] bg-[var(--surface-strong)] border border-[var(--border)]"
           >
             <IconArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <h2 className="text-[16px] font-medium text-white">Preview & Review</h2>
-            <p className="text-[12px] text-white/40 truncate max-w-[300px]">{fileName}</p>
+            <h2 className="font-heading text-[16px] font-semibold text-[var(--text)]">Preview & Review</h2>
+            <p className="font-body text-[12px] text-[var(--text-muted)] truncate max-w-[300px]">{fileName}</p>
           </div>
         </div>
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white text-[13px] font-semibold hover:bg-accent/90 disabled:opacity-50 transition-colors"
+          className="btn-primary disabled:opacity-50"
         >
           {submitting ? (
             <>
@@ -203,7 +203,7 @@ export default function PreviewWorkspace({
       </div>
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/[0.08] p-4 text-[13px] text-white/70">
+        <div className="mb-4 rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4 font-body text-[13px] text-[var(--text)]">
           {error}
         </div>
       )}

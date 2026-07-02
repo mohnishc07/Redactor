@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: zenaudit-api
+    runtime: docker
+    repo: https://github.com/mohnishc07/Redactor.git
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: REDACTOR_MAX_FILE_SIZE_MB
+        value: "50"
+      - key: REDACTOR_ENABLE_ML
+        value: "false"
+      - key: REDACTOR_QUEUE_BACKEND
+        value: memory
+      - key: REDACTOR_CORS_ORIGINS
+        value: "https://zenaudit.vercel.app"
+      - key: REDACTOR_API_KEY
+        generateValue: true
+    healthCheckPath: /health
+    plan: starter

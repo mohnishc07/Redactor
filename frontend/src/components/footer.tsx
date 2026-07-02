@@ -2,13 +2,11 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="border-t-[0.5px] border-glass py-8 px-8 flex justify-between items-center max-w-[800px] mx-auto w-full">
-      <span className="font-display text-[13px] font-normal text-lo tracking-[-0.02em]">
+    <footer className="max-w-[1160px] mx-auto w-full mt-auto px-6 py-5 flex justify-between items-center glass-strong !rounded-2xl mb-6">
+      <span className="font-display text-[14px] font-medium text-[var(--text)] tracking-tight">
         Zen Audit
       </span>
-      <span className="text-[11px] text-lo">
-        © 2026
-      </span>
+      <span className="font-body text-[12px] text-[var(--text-muted)]">© 2026</span>
     </footer>
   );
 }

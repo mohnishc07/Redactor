@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
 import Link from "next/link";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import FileUploadDemo from "@/components/file-upload-demo";
+import ThemeToggle from "@/components/theme-toggle";
 import { IconArrowLeft, IconShieldCheck } from "@tabler/icons-react";
 import type { PreviewData } from "@/lib/types";
 
@@ -51,61 +51,49 @@ export default function RedactPage() {
   };
 
   return (
-    <AuroraBackground className="min-h-screen h-auto">
-      <div className="relative z-10 w-full min-h-screen flex flex-col text-white">
+    <AuroraBackground>
+      <div className="relative z-10 w-full min-h-screen flex flex-col text-[var(--text)]">
         {/* App navbar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 h-[68px] bg-[#080C10]/40 backdrop-blur-2xl border-b border-white/[0.06]">
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-4 h-14 w-[calc(100%-2rem)] max-w-[1280px] rounded-full border border-[var(--border)] bg-[var(--surface-strong)] text-[var(--text)] backdrop-blur-xl shadow-[var(--shadow-sm)]">
           <Link
             href="/"
-            className="font-display text-[17px] font-medium text-white tracking-[-0.02em] flex items-center gap-2.5 select-none"
+            className="font-display text-[18px] font-medium tracking-tight flex items-center gap-2 select-none"
           >
-            <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
-              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5">
-                <circle cx="6" cy="6" r="3" stroke="white" strokeWidth="1.5"/>
-                <line x1="6" y1="1" x2="6" y2="3" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="6" y1="9" x2="6" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="1" y1="6" x2="3" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="9" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </div>
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--accent)] text-white font-ui text-[11px] font-bold">
+              ZA
+            </span>
             Zen Audit
           </Link>
 
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-[13px] font-medium text-white/60 hover:text-white transition-colors"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            Back home
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link
+              href="/"
+              className="hidden sm:inline-flex items-center gap-1.5 font-ui text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)]"
+            >
+              <IconArrowLeft className="w-4 h-4" />
+              Back home
+            </Link>
+          </div>
         </nav>
 
-        <main className="flex-1 flex flex-col px-6 md:px-10 pt-[92px] pb-8">
+        <main className="flex-1 flex flex-col px-4 pt-28 pb-6">
           {!preview ? (
             <>
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-center mb-6"
-              >
-                <div className="inline-flex items-center gap-2 text-[12px] font-medium tracking-[0.12em] uppercase text-accent mb-3">
-                  <IconShieldCheck className="w-4 h-4" />
+              <header className="max-w-[1280px] mx-auto w-full flex items-center justify-between gap-2 mb-6 glass !py-3 !px-5">
+                <p className="font-heading text-[14px] md:text-[16px] font-semibold tracking-tight">
                   Secure redaction workspace
-                </div>
-                <h1 className="font-display text-[28px] md:text-[36px] font-light tracking-[-0.03em] text-white">
-                  Configure. Upload. Done.
-                </h1>
-              </motion.div>
+                </p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-soft)]/20 text-[var(--accent)] font-ui text-[11px] font-semibold px-3 py-1 border border-[var(--border)]">
+                  <IconShieldCheck className="w-3.5 h-3.5" />
+                  Preview mode
+                </span>
+              </header>
 
               {previewError && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="max-w-[1280px] mx-auto w-full mb-5 rounded-2xl border border-red-500/20 bg-red-500/[0.08] p-4 text-[13px] text-white/70"
-                >
+                <div className="max-w-[1280px] mx-auto w-full mb-5 glass !bg-[var(--accent)]/10 !border-[var(--accent)]/20 p-4 font-body text-[13px] text-[var(--text)]">
                   {previewError}
-                </motion.div>
+                </div>
               )}
 
               <div className="flex-1 flex items-center justify-center">
@@ -125,8 +113,8 @@ export default function RedactPage() {
           )}
         </main>
 
-        <footer className="px-6 md:px-10 py-5 border-t border-white/[0.06] bg-[#080C10]/40 backdrop-blur-xl">
-          <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/35">
+        <footer className="px-4 py-4 max-w-[1280px] mx-auto w-full">
+          <div className="glass !py-3 !px-5 flex flex-col md:flex-row items-center justify-between gap-2 font-body text-[12px] text-[var(--text-muted)]">
             <p>Your files are processed by your own backend. Nothing is stored on our servers.</p>
             <p>© 2026 Zen Audit</p>
           </div>

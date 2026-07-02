@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import React, { useRef, useState } from "react";
-import { motion } from "motion/react";
 import { IconUpload, IconFile } from "@tabler/icons-react";
 
 interface FileUploadProps {
@@ -92,12 +91,7 @@ export const FileUpload = ({
       : `PDF, Excel, or Word — up to ${(maxSizeBytes / (1024 * 1024)).toFixed(0)} MB`);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full"
-    >
+    <div className="w-full">
       <div
         role="button"
         tabIndex={0}
@@ -112,11 +106,11 @@ export const FileUpload = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "group relative flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed px-8 py-10 text-center transition-all duration-300 ease-out cursor-pointer",
-          "bg-white/[0.03] backdrop-blur-xl hover:bg-white/[0.06]",
+          "group relative flex flex-col items-center justify-center gap-4 border border-dashed rounded-[var(--radius-lg)] px-8 py-10 text-center cursor-pointer",
+          "bg-[var(--surface-strong)] border-[var(--border-alt)]",
           isDragOver
-            ? "border-accent/60 bg-accent/[0.08] scale-[1.02]"
-            : "border-white/15 hover:border-white/30"
+            ? "border-[var(--accent)] bg-[var(--accent-soft)]/10"
+            : "border-[var(--border-alt)]"
         )}
       >
         <input
@@ -128,30 +122,25 @@ export const FileUpload = ({
           className="hidden"
         />
 
-        <div
-          className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300",
-            "bg-white/[0.06] text-white/60 group-hover:bg-white/[0.10] group-hover:text-white"
-          )}
-        >
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--surface)] text-[var(--accent)] border border-[var(--border)]">
           {files.length > 0 ? <IconFile className="h-7 w-7" /> : <IconUpload className="h-7 w-7" />}
         </div>
 
         <div className="space-y-1">
-          <p className="text-[15px] font-medium text-white/90">
+          <p className="font-heading text-[15px] font-semibold text-[var(--text)]">
             {files.length > 0
               ? multiple
                 ? `${files.length} file${files.length === 1 ? "" : "s"} selected`
                 : files[0].name
               : displayLabel}
           </p>
-          <p className="text-[13px] font-normal text-white/40">
+          <p className="font-body text-[13px] text-[var(--text-muted)]">
             {files.length > 0 && !multiple
               ? `${(files[0].size / (1024 * 1024)).toFixed(2)} MB`
               : displaySublabel}
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

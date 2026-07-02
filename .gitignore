@@ -16,6 +16,9 @@ build/
 .env.*.local
 .env
 
+# MCP configs with secrets
+.mcp.json
+
 # OS / editor
 .DS_Store
 Thumbs.db

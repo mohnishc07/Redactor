@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 import type { ReviewDetection, ManualBox, ViewerMode } from "@/lib/types";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 interface PdfViewerProps {
   pdfUrl: string;
@@ -41,20 +41,20 @@ interface PageSize {
 
 const HIGHLIGHTS = {
   approved: {
-    fill: "rgba(251, 191, 36, 0.22)",
-    border: "rgba(251, 191, 36, 0.80)",
+    fill: "rgba(139, 92, 246, 0.22)",
+    border: "rgba(139, 92, 246, 0.80)",
   },
   rejected: {
-    fill: "rgba(100, 116, 139, 0.15)",
-    border: "rgba(100, 116, 139, 0.60)",
+    fill: "rgba(90, 90, 104, 0.18)",
+    border: "rgba(90, 90, 104, 0.60)",
   },
   manual: {
-    fill: "rgba(91, 138, 255, 0.20)",
-    border: "rgba(91, 138, 255, 0.85)",
+    fill: "rgba(56, 189, 248, 0.20)",
+    border: "rgba(56, 189, 248, 0.80)",
   },
   selected: {
-    fill: "rgba(251, 191, 36, 0.35)",
-    border: "rgba(251, 191, 36, 1)",
+    fill: "rgba(139, 92, 246, 0.38)",
+    border: "rgba(139, 92, 246, 1)",
   },
 };
 
@@ -69,6 +69,7 @@ export default function PdfViewer({
   onScaleChange,
   onPageChange,
   onToggleDetection,
+  onRemoveDetection,
   onAddManualBox,
   onSelectDetection,
   selectedId,
@@ -172,43 +173,43 @@ export default function PdfViewer({
   };
 
   return (
-    <div className="flex flex-col h-full rounded-[28px] border border-white/[0.08] bg-[#080C10]/50 backdrop-blur-2xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-full glass overflow-hidden !p-0">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08] bg-white/[0.03]">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)] bg-[var(--surface-strong)]">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => onScaleChange(Math.max(0.5, scale - 0.25))}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
             title="Zoom out"
           >
             <IconZoomOut className="w-4 h-4" />
           </button>
-          <span className="text-[12px] font-medium text-white/60 min-w-[48px] text-center">
+          <span className="font-ui text-[12px] font-semibold text-[var(--text-muted)] min-w-[48px] text-center">
             {Math.round(scale * 100)}%
           </span>
           <button
             onClick={() => onScaleChange(scale + 0.25)}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
             title="Zoom in"
           >
             <IconZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={() => onScaleChange(1.25)}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)]"
             title="Fit"
           >
             <IconMaximize className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => onModeChange("pan")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-ui text-[11px] font-semibold uppercase tracking-wide ${
               mode === "pan"
-                ? "bg-accent text-white"
-                : "text-white/70 hover:text-white hover:bg-white/[0.08]"
+                ? "bg-[var(--accent)] text-white"
+                : "text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)]"
             }`}
           >
             <IconHandMove className="w-3.5 h-3.5" />
@@ -216,10 +217,10 @@ export default function PdfViewer({
           </button>
           <button
             onClick={() => onModeChange("draw")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-ui text-[11px] font-semibold uppercase tracking-wide ${
               mode === "draw"
-                ? "bg-accent text-white"
-                : "text-white/70 hover:text-white hover:bg-white/[0.08]"
+                ? "bg-[var(--accent)] text-white"
+                : "text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)]"
             }`}
           >
             <IconPencil className="w-3.5 h-3.5" />
@@ -227,21 +228,21 @@ export default function PdfViewer({
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 transition-colors"
+            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)] disabled:opacity-30"
           >
             <IconChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-[12px] font-medium text-white/60 min-w-[64px] text-center">
+          <span className="font-ui text-[12px] font-semibold text-[var(--text-muted)] min-w-[64px] text-center">
             {currentPage} / {numPages || "—"}
           </span>
           <button
             onClick={() => onPageChange(Math.min(numPages, currentPage + 1))}
             disabled={currentPage >= numPages}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 transition-colors"
+            className="p-2 rounded-lg text-[var(--text-low)] bg-[var(--surface)] border border-[var(--border)] disabled:opacity-30"
           >
             <IconChevronRight className="w-4 h-4" />
           </button>
@@ -251,7 +252,7 @@ export default function PdfViewer({
       {/* Viewport */}
       <div
         ref={containerRef}
-        className={`flex-1 overflow-auto bg-[#0a0e13] p-8 ${
+        className={`flex-1 overflow-auto bg-[var(--bg)] p-6 ${
           mode === "draw" ? "cursor-crosshair select-none" : "cursor-grab active:cursor-grabbing"
         }`}
       >
@@ -265,7 +266,7 @@ export default function PdfViewer({
                   ref={(el) => {
                     pageRefs.current[pageIndex] = el;
                   }}
-                  className="relative mx-auto mb-8 shadow-2xl"
+                  className="relative mx-auto mb-8 rounded-[var(--radius-sm)] border border-[var(--border-alt)] overflow-hidden shadow-[var(--shadow-sm)]"
                   style={{ width: renderedWidth(pageIndex) || "fit-content" }}
                 >
                   <Page
@@ -308,10 +309,10 @@ export default function PdfViewer({
                             return (
                               <div
                                 key={`${item.id}-${rIdx}`}
-                                className={`absolute ${
+                                className={`absolute rounded-sm ${
                                   mode === "draw" ? "pointer-events-none" : "pointer-events-auto"
                                 } ${dashed ? "border-dashed" : "border-solid"} ${
-                                  isSelected ? "ring-2 ring-white/60" : ""
+                                  isSelected ? "ring-2 ring-[var(--accent)]" : ""
                                 }`}
                                 style={{
                                   left,
@@ -320,9 +321,7 @@ export default function PdfViewer({
                                   height,
                                   backgroundColor: style.fill,
                                   border: `1px ${dashed ? "dashed" : "solid"} ${style.border}`,
-                                  borderRadius: 4,
                                   cursor: mode === "draw" ? "crosshair" : "pointer",
-                                  transition: "all 0.15s ease",
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -342,13 +341,12 @@ export default function PdfViewer({
                     })}
                     {drawing && drawing.page === pageIndex && (
                       <div
-                        className="absolute pointer-events-none border border-accent bg-accent/20"
+                        className="absolute pointer-events-none border border-[var(--accent)] bg-[var(--accent)]/20 rounded-sm"
                         style={{
                           left: Math.min(drawing.startX, drawing.endX),
                           top: Math.min(drawing.startY, drawing.endY),
                           width: Math.abs(drawing.endX - drawing.startX),
                           height: Math.abs(drawing.endY - drawing.startY),
-                          borderRadius: 4,
                         }}
                       />
                     )}
@@ -364,10 +362,10 @@ export default function PdfViewer({
 
 function PdfLoading() {
   return (
-    <div className="flex-1 flex items-center justify-center p-12 text-white/40">
+    <div className="flex-1 flex items-center justify-center p-12 text-[var(--text-muted)]">
       <div className="flex flex-col items-center gap-3">
-        <span className="w-8 h-8 border-2 border-white/20 border-t-accent rounded-full animate-spin" />
-        <span className="text-[13px]">Loading PDF...</span>
+        <span className="w-8 h-8 border-2 border-[var(--border-alt)] border-t-[var(--accent)] rounded-full animate-spin" />
+        <span className="font-body text-[13px]">Loading PDF...</span>
       </div>
     </div>
   );
@@ -375,8 +373,8 @@ function PdfLoading() {
 
 function PageLoading() {
   return (
-    <div className="flex items-center justify-center p-12 text-white/40">
-      <span className="text-[13px]">Rendering page...</span>
+    <div className="flex items-center justify-center p-12 text-[var(--text-muted)]">
+      <span className="font-body text-[13px]">Rendering page...</span>
     </div>
   );
 }

@@ -25,9 +25,6 @@ interface ReviewPanelProps {
   onSelect: (id: string) => void;
 }
 
-const cardBase =
-  "rounded-[28px] border border-white/[0.08] bg-[#080C10]/50 backdrop-blur-2xl p-5 shadow-xl";
-
 export default function ReviewPanel({
   detections,
   manualBoxes,
@@ -50,28 +47,26 @@ export default function ReviewPanel({
   const sortedPages = Array.from(grouped.keys()).sort((a, b) => a - b);
 
   return (
-    <div className={`${cardBase} flex flex-col h-full max-h-full`}>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-[15px] font-medium text-white">Review</h3>
-          <p className="text-[12px] text-white/40 mt-0.5">
-            {approved} approved · {rejected} rejected · {manualBoxes.length} manual
-          </p>
+    <div className="glass flex flex-col h-full max-h-full !p-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+        <div className="flex items-center gap-2">
+          <IconHandClick className="w-4 h-4 text-[var(--accent)]" />
+          <span className="font-heading text-[14px] font-semibold tracking-tight">Review</span>
         </div>
-        <div className="p-2 rounded-xl bg-accent/15 text-accent">
-          <IconHandClick className="w-4 h-4" />
-        </div>
+        <span className="font-ui text-[10px] font-semibold uppercase text-[var(--text-low)] tracking-wide">
+          {approved} approved · {rejected} rejected · {manualBoxes.length} manual
+        </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1 -mr-1 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pr-1 -mr-1 space-y-4 p-4">
         {sortedPages.length === 0 && (
-          <div className="text-center py-10 text-white/30 text-[13px]">
+          <div className="text-center py-10 text-[var(--text-muted)] font-body text-[13px]">
             No redactions found.
           </div>
         )}
         {sortedPages.map((page) => (
           <div key={page}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30 mb-2">
+            <p className="font-ui text-[10px] font-semibold uppercase tracking-wide text-[var(--text-low)] mb-2">
               Page {page}
             </p>
             <div className="space-y-2">
@@ -82,38 +77,38 @@ export default function ReviewPanel({
                   <button
                     key={item.id}
                     onClick={() => onSelect(item.id)}
-                    className={`w-full text-left rounded-2xl border p-3 transition-all duration-200 ${
+                    className={`w-full text-left rounded-xl border p-3 ${
                       isSelected
-                        ? "bg-white/[0.08] border-accent/40"
-                        : "bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]"
+                        ? "bg-[var(--accent-soft)]/10 border-[var(--accent)]/30"
+                        : "bg-[var(--surface-strong)] border-[var(--border)]"
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
                       <div
                         className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
                           manual
-                            ? "bg-[#5B8AFF]"
+                            ? "bg-[var(--tint-sky)]"
                             : item.status === "approved"
-                            ? "bg-amber-400"
-                            : "bg-slate-500"
+                            ? "bg-[var(--tint-sage)]"
+                            : "bg-[var(--text-low)]"
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] text-white/90 truncate">
+                        <p className="font-heading text-[12px] font-semibold text-[var(--text)] truncate">
                           {manual ? "Manual redaction" : item.text || item.detector}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/[0.06] text-white/50 capitalize">
+                          <span className="font-ui text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)]">
                             {manual ? "manual" : item.detector}
                           </span>
                           {!manual && (
                             <span
-                              className={`text-[10px] px-1.5 py-0.5 rounded-md capitalize ${
+                              className={`font-ui text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${
                                 item.confidence === "high"
-                                  ? "bg-emerald-500/10 text-emerald-400"
+                                  ? "bg-[var(--tint-sage)]/20 text-[var(--tint-sage)] border-[var(--tint-sage)]/30"
                                   : item.confidence === "medium"
-                                  ? "bg-amber-500/10 text-amber-400"
-                                  : "bg-white/[0.06] text-white/50"
+                                  ? "bg-[var(--tint-peach)]/20 text-[var(--tint-peach)] border-[var(--tint-peach)]/30"
+                                  : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)]"
                               }`}
                             >
                               {item.confidence}
@@ -131,7 +126,7 @@ export default function ReviewPanel({
                             e.stopPropagation();
                             if (item.status !== "approved") onToggleDetection(item.id);
                           }}
-                          color="amber"
+                          color="sage"
                           title="Approve"
                         >
                           <IconCheck className="w-3 h-3" />
@@ -195,17 +190,17 @@ function ActionButton({
   children: React.ReactNode;
   onClick: (e: React.MouseEvent) => void;
   active?: boolean;
-  color: "amber" | "slate" | "red";
+  color: "sage" | "slate" | "red";
   title: string;
 }) {
   const colorStyles = {
-    amber: active
-      ? "bg-amber-500 text-black border-amber-500"
-      : "text-amber-400 border-white/[0.08] hover:bg-amber-500/10",
+    sage: active
+      ? "bg-[var(--tint-sage)] text-white border-transparent"
+      : "text-[var(--tint-sage)] bg-[var(--surface-strong)] border-[var(--border)]",
     slate: active
-      ? "bg-slate-500 text-white border-slate-500"
-      : "text-slate-300 border-white/[0.08] hover:bg-slate-500/10",
-    red: "text-red-400 border-white/[0.08] hover:bg-red-500/10",
+      ? "bg-[var(--text-low)] text-white border-transparent"
+      : "text-[var(--text-muted)] bg-[var(--surface-strong)] border-[var(--border)]",
+    red: "text-[var(--primary)] bg-[var(--surface-strong)] border-[var(--border)]",
   };
 
   return (
@@ -213,7 +208,7 @@ function ActionButton({
       role="button"
       title={title}
       onClick={onClick}
-      className={`flex items-center justify-center w-7 h-7 rounded-lg border text-[11px] transition-colors cursor-pointer ${colorStyles[color]}`}
+      className={`flex items-center justify-center w-7 h-7 rounded-lg text-[11px] cursor-pointer ${colorStyles[color]}`}
     >
       {children}
     </div>

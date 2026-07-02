@@ -16,7 +16,7 @@ export function PaywallGate({ children, locked = false, onUpgrade }: PaywallGate
         <button
           type="button"
           onClick={onUpgrade}
-          className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-white/10 border border-white/10 text-white/60 hover:bg-accent/20 hover:text-accent hover:border-accent/30 transition-colors"
+          className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-[var(--surface-strong)] border border-[var(--border)] text-[var(--text-low)]"
           title="Upgrade to unlock"
         >
           <IconLock className="w-3 h-3" />

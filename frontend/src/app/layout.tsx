@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { DM_Sans, Inter } from "next/font/google";
 import "./globals.css";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Zenaudit Clone - PDF Redactor",
-  description: "Secure, highly responsive PDF redaction powered by machine learning.",
+  title: "Zen Audit - Document Redaction",
+  description: "Privacy-grade document redaction for PDF, Excel, and Word files.",
 };
+
+const themeInitScript = `
+  (function () {
+    try {
+      var stored = localStorage.getItem("zenaudit-theme");
+      var theme = stored === "dark" || stored === "light" ? stored : "light";
+      document.documentElement.classList.add(theme);
+      document.documentElement.style.colorScheme = theme;
+    } catch (e) {}
+  })();
+`;
 
 export default function RootLayout({
   children,
@@ -23,9 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${inter.variable} dark`}>
-      <body className="font-sans antialiased">
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="antialiased" suppressHydrationWarning>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
