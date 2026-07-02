@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import json
 import os
 import tempfile
 from contextlib import asynccontextmanager
@@ -24,6 +25,16 @@ from .errors import ErrorCode, error_response
 from .logging_config import configure_logging
 from .models import ApplyRequest, HealthResponse, PreviewSelection, ReadyResponse, RedactRequest, RedactResponse
 from .queue import InMemoryQueue, JobQueue, JobStatus, get_queue_class
+from .sanitization import (
+    ALLOWED_EXTENSIONS,
+    VALID_CONFIDENCE,
+    sanitize_filename,
+    sanitize_job_id,
+    sanitize_options,
+    sanitize_selections,
+    validate_content_type,
+    validate_file_extension,
+)
 
 # Configuration
 configure_logging()
@@ -189,15 +200,35 @@ async def create_job(
 ) -> JSONResponse:
     queue = _get_queue()
 
-    # Validate file extension.
-    supported_exts = (".pdf", ".xlsx", ".xlsm", ".docx")
-    if not file.filename or not file.filename.lower().endswith(supported_exts):
+    # Validate and sanitize file metadata.
+    if not file.filename:
         return JSONResponse(
             status_code=400,
             content=error_response(
                 ErrorCode.UNSUPPORTED_FILE_TYPE,
-                f"Only PDF, XLSX, XLSM, and DOCX files are accepted. Got: {file.filename}",
-                {"supported": supported_exts},
+                "Missing filename",
+                {"supported": list(ALLOWED_EXTENSIONS.keys())},
+            ),
+        )
+
+    safe_filename = sanitize_filename(file.filename)
+    ext = validate_file_extension(safe_filename)
+    if ext is None:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Only PDF, XLSX, XLSM, and DOCX files are accepted. Got: {safe_filename}",
+                {"supported": list(ALLOWED_EXTENSIONS.keys())},
+            ),
+        )
+
+    if not validate_content_type(safe_filename, file.content_type):
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Content-Type {file.content_type!r} does not match extension {ext}",
             ),
         )
 
@@ -212,9 +243,9 @@ async def create_job(
             ),
         )
 
-    # Validate options JSON.
+    # Sanitize and validate options JSON.
     try:
-        parsed_options = RedactRequest.model_validate_json(options)
+        raw_options = json.loads(options)
     except Exception as exc:
         return JSONResponse(
             status_code=400,
@@ -224,17 +255,28 @@ async def create_job(
             ),
         )
 
+    sanitized_options = sanitize_options(raw_options)
+    try:
+        parsed_options = RedactRequest.model_validate(sanitized_options)
+    except Exception as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.INVALID_OPTIONS_JSON,
+                f"Invalid options: {exc}",
+            ),
+        )
+
     redaction_options = _build_redaction_options(parsed_options)
 
-    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "pdf"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input.{ext}") as tmp_in:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input{ext}") as tmp_in:
         tmp_in.write(raw_bytes)
         input_path = tmp_in.name
 
-    output_path = input_path.replace(f"_input.{ext}", f"_redacted.{ext}")
+    output_path = input_path.replace(f"_input{ext}", f"_redacted{ext}")
 
     try:
-        job_id = await queue.submit(input_path, output_path, redaction_options, original_filename=file.filename)
+        job_id = await queue.submit(input_path, output_path, redaction_options, original_filename=safe_filename)
     except Exception as exc:
         _safe_remove(input_path)
         _safe_remove(output_path)
@@ -259,6 +301,12 @@ async def create_job(
 @app.get("/jobs/{job_id}", response_model=None, dependencies=[Depends(api_key_dependency), Depends(rate_limit("30/minute"))])
 async def get_job(job_id: str) -> JSONResponse:
     queue = _get_queue()
+    job_id = sanitize_job_id(job_id)
+    if job_id is None:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, "Invalid job ID"),
+        )
     job = await queue.get(job_id)
     if job is None:
         return JSONResponse(
@@ -284,6 +332,12 @@ async def get_job(job_id: str) -> JSONResponse:
 @app.post("/jobs/{job_id}/cancel", response_model=None, dependencies=[Depends(api_key_dependency), Depends(rate_limit("10/minute"))])
 async def cancel_job(job_id: str) -> JSONResponse:
     queue = _get_queue()
+    job_id = sanitize_job_id(job_id)
+    if job_id is None:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, "Invalid job ID"),
+        )
     job = await queue.get(job_id)
     if job is None:
         return JSONResponse(
@@ -310,13 +364,32 @@ async def preview(
     """Detect sensitive content and return the original PDF + detection report."""
     queue = _get_queue()
 
-    supported_exts = (".pdf",)
-    if not file.filename or not file.filename.lower().endswith(supported_exts):
+    if not file.filename:
         return JSONResponse(
             status_code=400,
             content=error_response(
                 ErrorCode.UNSUPPORTED_FILE_TYPE,
-                f"Preview is only available for PDF files. Got: {file.filename}",
+                "Missing filename",
+            ),
+        )
+
+    safe_filename = sanitize_filename(file.filename)
+    ext = validate_file_extension(safe_filename)
+    if ext != ".pdf":
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Preview is only available for PDF files. Got: {safe_filename}",
+            ),
+        )
+
+    if not validate_content_type(safe_filename, file.content_type):
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Content-Type {file.content_type!r} does not match extension {ext}",
             ),
         )
 
@@ -331,29 +404,37 @@ async def preview(
         )
 
     try:
-        parsed_options = RedactRequest.model_validate_json(options)
+        raw_options = json.loads(options)
     except Exception as exc:
         return JSONResponse(
             status_code=400,
             content=error_response(ErrorCode.INVALID_OPTIONS_JSON, f"Invalid options JSON: {exc}"),
         )
 
+    sanitized_options = sanitize_options(raw_options)
+    try:
+        parsed_options = RedactRequest.model_validate(sanitized_options)
+    except Exception as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, f"Invalid options: {exc}"),
+        )
+
     parsed_options.preview = True
     redaction_options = _build_redaction_options(parsed_options)
 
-    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "pdf"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input.{ext}") as tmp_in:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input{ext}") as tmp_in:
         tmp_in.write(raw_bytes)
         input_path = tmp_in.name
 
-    output_path = input_path.replace(f"_input.{ext}", f"_redacted.{ext}")
+    output_path = input_path.replace(f"_input{ext}", f"_redacted{ext}")
 
     try:
         job_id = await queue.submit(
             input_path,
             output_path,
             redaction_options,
-            original_filename=file.filename,
+            original_filename=safe_filename,
             mode="preview",
             original_options=parsed_options.model_dump(),
         )
@@ -409,6 +490,12 @@ async def apply(
 ) -> JSONResponse:
     """Apply a curated set of redactions to a previously uploaded preview PDF."""
     queue = _get_queue()
+    job_id = sanitize_job_id(job_id)
+    if job_id is None:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, "Invalid job ID"),
+        )
     job = await queue.get(job_id)
     if job is None:
         return JSONResponse(
@@ -431,7 +518,19 @@ async def apply(
             content=error_response(ErrorCode.INTERNAL_ERROR, "Preview file has expired"),
         )
 
-    redaction_options = _build_redaction_options(request.options)
+    # Sanitize apply options and selections before passing to the engine.
+    sanitized_options = sanitize_options(request.options.model_dump())
+    try:
+        parsed_options = RedactRequest.model_validate(sanitized_options)
+    except Exception as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, f"Invalid apply options: {exc}"),
+        )
+    redaction_options = _build_redaction_options(parsed_options)
+
+    sanitized_selections = sanitize_selections([sel.model_dump() for sel in request.selections])
+
     output_path = job.input_path.replace("_input.", "_redacted.")
 
     try:
@@ -441,7 +540,7 @@ async def apply(
             redaction_options,
             original_filename=job.result.get("filename") if job.result else None,
             mode="apply",
-            selections=[sel.model_dump() for sel in request.selections],
+            selections=sanitized_selections,
         )
     except Exception as exc:
         raise HTTPException(
@@ -490,13 +589,34 @@ async def redact_sync(
     """Synchronous redaction for simple use cases. Returns the file directly."""
     queue = _get_queue()
 
-    supported_exts = (".pdf", ".xlsx", ".xlsm", ".docx")
-    if not file.filename or not file.filename.lower().endswith(supported_exts):
+    if not file.filename:
         return JSONResponse(
             status_code=400,
             content=error_response(
                 ErrorCode.UNSUPPORTED_FILE_TYPE,
-                f"Only PDF, XLSX, XLSM, and DOCX files are accepted. Got: {file.filename}",
+                "Missing filename",
+                {"supported": list(ALLOWED_EXTENSIONS.keys())},
+            ),
+        )
+
+    safe_filename = sanitize_filename(file.filename)
+    ext = validate_file_extension(safe_filename)
+    if ext is None:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Only PDF, XLSX, XLSM, and DOCX files are accepted. Got: {safe_filename}",
+                {"supported": list(ALLOWED_EXTENSIONS.keys())},
+            ),
+        )
+
+    if not validate_content_type(safe_filename, file.content_type):
+        return JSONResponse(
+            status_code=400,
+            content=error_response(
+                ErrorCode.UNSUPPORTED_FILE_TYPE,
+                f"Content-Type {file.content_type!r} does not match extension {ext}",
             ),
         )
 
@@ -507,28 +627,37 @@ async def redact_sync(
             content=error_response(
                 ErrorCode.FILE_TOO_LARGE,
                 f"File exceeds {MAX_FILE_SIZE_MB} MB limit",
+                {"max_size_mb": MAX_FILE_SIZE_MB},
             ),
         )
 
     try:
-        parsed_options = RedactRequest.model_validate_json(options)
+        raw_options = json.loads(options)
     except Exception as exc:
         return JSONResponse(
             status_code=400,
             content=error_response(ErrorCode.INVALID_OPTIONS_JSON, f"Invalid options JSON: {exc}"),
         )
 
+    sanitized_options = sanitize_options(raw_options)
+    try:
+        parsed_options = RedactRequest.model_validate(sanitized_options)
+    except Exception as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response(ErrorCode.INVALID_OPTIONS_JSON, f"Invalid options: {exc}"),
+        )
+
     redaction_options = _build_redaction_options(parsed_options)
 
-    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "pdf"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input.{ext}") as tmp_in:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_input{ext}") as tmp_in:
         tmp_in.write(raw_bytes)
         input_path = tmp_in.name
 
-    output_path = input_path.replace(f"_input.{ext}", f"_redacted.{ext}")
+    output_path = input_path.replace(f"_input{ext}", f"_redacted{ext}")
 
     try:
-        job_id = await queue.submit(input_path, output_path, redaction_options, original_filename=file.filename)
+        job_id = await queue.submit(input_path, output_path, redaction_options, original_filename=safe_filename)
     except Exception as exc:
         _safe_remove(input_path)
         _safe_remove(output_path)
