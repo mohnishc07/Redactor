@@ -38,6 +38,21 @@ class RedactionOptions:
         "financial": ["account", "ifsc", "micr", "upi", "pan", "aadhaar", "bic", "iban", "creditcard", "balance"],
     }
 
+    # Union of template detectors plus registered detector ids used by sanitize_detectors().
+    TEMPLATE_DETECTORS = sorted(
+        {
+            *(d for dets in TEMPLATES.values() for d in dets),
+            "qrcode",
+            "barcode",
+            "receiver",
+            "customer_id",
+            "link",
+            "secret",
+            "mask",
+            "timestamp",
+        }
+    )
+
     def resolve_detectors(self) -> list[str]:
         detectors = list(self.detectors)
         if self.template and self.template in self.TEMPLATES:
