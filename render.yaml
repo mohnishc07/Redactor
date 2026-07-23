@@ -14,7 +14,7 @@ services:
       - key: REDACTOR_QUEUE_BACKEND
         value: memory
       - key: REDACTOR_CORS_ORIGINS
-        value: "https://zenaudit.vercel.app"
+        value: "https://saferase.co,https://www.saferase.co,https://redactor-zen-audit.vercel.app"
       - key: REDACTOR_API_KEY
         generateValue: true
     healthCheckPath: /health
